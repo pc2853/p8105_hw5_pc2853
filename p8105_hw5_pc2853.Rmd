@@ -6,10 +6,76 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
 library(tidyverse)
 library(rvest)
 library(purrr)
 library(ggplot2)
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 ```
+
+###Problem 1
+
+* Start with a dataframe containing all file names:
+
+```{r p1 file name}
+p1_file_name = 
+  tibble(
+    path = str_c("./data/", list.files("data/"))[1:20],
+    name = list.files("data/")[1:20]
+  )
+
+```
+
+* Iterate over file names and read in data for each subject using purrr::map and saving the result as a new variable in the dataframe
+* Tidy the result; manipulate file names to include control arm and subject ID, make sure weekly observations are “tidy”, and do any other tidying that’s necessary:
+
+```{r data cleaning}
+#function to iterate over file names
+
+add_arm_id_and_read = function(x){
+  read_csv(x) %>% 
+    mutate(arm = str_sub(x, 8, 10), id = str_sub(x, 12, 13))
+  
+}
+
+p1_data_tidy = 
+  map_df(.x = p1_file_name$path, ~ add_arm_id_and_read(.x)) %>% 
+  gather(key = week, value = weekly_observation, week_1:week_8) %>% 
+  separate(week, into = c("remove", "week"), sep = "_") %>% 
+  select(arm, id, everything(), -remove)
+  
+```
+
+* Make a spaghetti plot showing observations on each subject over time, and comment on differences between groups
+
+```{r spaghetti plot}
+p1_data_tidy %>% 
+  mutate(arm_id = paste(arm, id, sep = "_")) %>% 
+  ggplot(aes(x = week, y = weekly_observation, color = arm, group = arm_id)) +
+    geom_line() +
+    labs(
+      title = "Observations on each subject over time",
+      x = "Week",
+      y = "Weekly observation",
+      color = 'Arm'
+    ) 
+```
+
+Reading this plot, we know that the observations in experimental arm in generally larger than that in control arm, and only the experimental arm has increasing observations over time. 
+
+###Problem 2
+
+* Import the data:
+
+```{r p2 data}
+p2_data = read_csv("./data/homicide-data.csv")
+```
+
+* describe the data:
+
+The data has a dimension of `r dim(p2_data)`. It contains variables that are victims' id, reported date, victims' last name, victims' first name, their race, age, sex, city, state, latitude, longitude and disposition. 
