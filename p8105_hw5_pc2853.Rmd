@@ -35,7 +35,6 @@ p1_file_name =
 * Tidy the result; manipulate file names to include control arm and subject ID, make sure weekly observations are “tidy”, and do any other tidying that’s necessary:
 
 ```{r data cleaning}
-#function to iterate over file names
 
 add_arm_id_and_read = function(x){
   read_csv(x) %>% 
