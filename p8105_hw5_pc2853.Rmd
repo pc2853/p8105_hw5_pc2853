@@ -105,6 +105,10 @@ p2_data_mutate =
 p2_data_Baltimore_MD =   
   p2_data_mutate %>% 
   filter(city_state == "Baltimore, MD")
-prop.test(p2_data_Baltimore_MD$n_homicide_unsolved, p2_data_Baltimore_MD$n_homicide_total)
+prop.test(p2_data_Baltimore_MD$n_homicide_unsolved, p2_data_Baltimore_MD$n_homicide_total) %>% 
+  broom::tidy() %>% 
+  select(estimate, conf.low, conf.high) %>% 
+  knitr::kable(digits = 3)
+
 ```
 
