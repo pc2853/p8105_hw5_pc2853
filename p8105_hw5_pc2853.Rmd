@@ -71,10 +71,31 @@ Reading this plot, we know that the observations in experimental arm in generall
 
 * Import the data:
 
-```{r p2 data}
+```{r p2 data, message=FALSE}
 p2_data = read_csv("./data/homicide-data.csv")
 ```
 
 * describe the data:
 
 The data has a dimension of `r dim(p2_data)`. It contains variables that are victims' id, reported date, victims' last name, victims' first name, their race, age, sex, city, state, latitude, longitude and disposition. 
+
+* Create a city_state variable (e.g. “Baltimore, MD”) and then summarize within cities to obtain the total number of homicides and the number of unsolved homicides (those for which the disposition is “Closed without arrest” or “Open/No arrest”):
+```{r data mutation}
+p2_data_mutated_total = 
+  p2_data %>%
+  mutate(city_state = paste(city, state, sep = ", ")) %>% 
+  group_by(city_state) %>% 
+  summarize(n_homicides_total = n())
+
+p2_data_mutated_unsolved = 
+  p2_data %>%
+  ungroup() %>% 
+  mutate(city_state = paste(city, state, sep = ", ")) %>% 
+  filter(disposition == c("Closed without arrest", "Open/No arrest")) %>% 
+  group_by(city_state) %>% 
+  summarize(n_homicide_unsolved = n())
+
+p2_data_mutate = 
+  full_join(p2_data_mutated_total, p2_data_mutated_unsolved)
+```
+
