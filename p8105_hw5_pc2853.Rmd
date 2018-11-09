@@ -114,7 +114,7 @@ prop.test(p2_data_Baltimore_MD$n_homicide_unsolved, p2_data_Baltimore_MD$n_homic
 
 ```
 
-Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of purrr::map, purrr::map2, list columns and  unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city:
+* Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of purrr::map, purrr::map2, list columns and  unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city:
 
 ```{r p2 part 3 iteration}
 prop_test_unsolved = function(x){
@@ -132,5 +132,22 @@ p2_data_mutated_unsolved_prop =
   p2_data_mutate %>% 
   mutate(unsolved_prop = map(.x = city_state, ~ prop_test_unsolved(.x))) %>% 
   unnest()
+p2_data_mutated_unsolved_prop
+```
+
+* Create a plot that shows the estimates and CIs for each city – check out geom_errorbar for a way to add error bars based on the upper and lower limits. Organize cities according to the proportion of unsolved homicides:
+
+```{r p3 plot}
+p2_data_mutated_unsolved_prop %>%  
+  ggplot(aes(x = city_state, y = estimate, ymax = conf.high, ymin = conf.low)) +
+  geom_point() +
+  geom_errorbar() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(
+    title = "The estimates and CIs of the proportion of unsolved homicides",
+    x = "City and state",
+    y = "Proportion estimate"
+  )
+  
 ```
 
