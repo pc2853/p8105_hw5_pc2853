@@ -80,6 +80,7 @@ p2_data = read_csv("./data/homicide-data.csv")
 The data has a dimension of `r dim(p2_data)`. It contains variables that are victims' id, reported date, victims' last name, victims' first name, their race, age, sex, city, state, latitude, longitude and disposition. 
 
 * Create a city_state variable (e.g. “Baltimore, MD”) and then summarize within cities to obtain the total number of homicides and the number of unsolved homicides (those for which the disposition is “Closed without arrest” or “Open/No arrest”):
+
 ```{r data mutation}
 p2_data_mutated_total = 
   p2_data %>%
@@ -101,6 +102,7 @@ p2_data_mutate =
 ```
 
 * For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved; save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe:
+
 ```{r p2 part 2}
 p2_data_Baltimore_MD =   
   p2_data_mutate %>% 
@@ -110,5 +112,25 @@ prop.test(p2_data_Baltimore_MD$n_homicide_unsolved, p2_data_Baltimore_MD$n_homic
   select(estimate, conf.low, conf.high) %>% 
   knitr::kable(digits = 3)
 
+```
+
+Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of purrr::map, purrr::map2, list columns and  unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city:
+
+```{r p2 part 3 iteration}
+prop_test_unsolved = function(x){
+  p2_data_each_city =   
+  p2_data_mutate %>% 
+  filter(city_state == x)
+  
+  prop.test(p2_data_each_city$n_homicide_unsolved, p2_data_each_city$n_homicide_total) %>% 
+  broom::tidy() %>% 
+  select(estimate, conf.low, conf.high)
+  
+}
+
+p2_data_mutated_unsolved_prop = 
+  p2_data_mutate %>% 
+  mutate(unsolved_prop = map(.x = city_state, ~ prop_test_unsolved(.x))) %>% 
+  unnest()
 ```
 
