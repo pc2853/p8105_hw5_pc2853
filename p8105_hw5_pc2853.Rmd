@@ -85,7 +85,7 @@ p2_data_mutated_total =
   p2_data %>%
   mutate(city_state = paste(city, state, sep = ", ")) %>% 
   group_by(city_state) %>% 
-  summarize(n_homicides_total = n())
+  summarize(n_homicide_total = n())
 
 p2_data_mutated_unsolved = 
   p2_data %>%
@@ -96,6 +96,15 @@ p2_data_mutated_unsolved =
   summarize(n_homicide_unsolved = n())
 
 p2_data_mutate = 
-  full_join(p2_data_mutated_total, p2_data_mutated_unsolved)
+  full_join(p2_data_mutated_total, p2_data_mutated_unsolved) %>% 
+  filter(!is.na(n_homicide_unsolved) == TRUE)
+```
+
+* For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved; save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe:
+```{r p2 part 2}
+p2_data_Baltimore_MD =   
+  p2_data_mutate %>% 
+  filter(city_state == "Baltimore, MD")
+prop.test(p2_data_Baltimore_MD$n_homicide_unsolved, p2_data_Baltimore_MD$n_homicide_total)
 ```
 
