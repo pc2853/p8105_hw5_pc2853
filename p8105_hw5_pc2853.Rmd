@@ -31,7 +31,7 @@ p1_file_name =
 
 ```
 
-* Iterate over file names and read in data for each subject using purrr::map and saving the result as a new variable in the dataframe
+* Iterate over file names and read in data for each subject using purrr::map and saving the result as a new variable in the dataframe; 
 * Tidy the result; manipulate file names to include control arm and subject ID, make sure weekly observations are “tidy”, and do any other tidying that’s necessary:
 
 ```{r data cleaning}
